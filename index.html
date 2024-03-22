@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8" />
+<head>
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css"/>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script> <!--enlace para el buscador de coordenadas-->
+    
+<!--Librerías para llamar la función cluster map-->
+<!--<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.5.0/MarkerCluster.Default.css" />
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.5.0/leaflet.markercluster.js"></script>
+	
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+     hasta aca estan las librerias de cluster -->
+    
+	 <!--Enclaces a las carpetas del buscador-->
+
+     <script src="leaflet-search-master\src\leaflet-search.js"></script>
+     <link rel="stylesheet" href="leaflet-search-master\src\leaflet-search.css" />
+     <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.js"></script>  <!--enlace para llamar el plugin del buscador de coordenadas-->
+     <script src="cuadri_cdmx_20fmar24_wgs84_copia.js"></script>
+     <script src="buffers_21_marz_copia.js"></script>
+	 
+<!--Objeto Div que incluye la apariencia del marco del mapa-->
+ <style>
+  #map { 
+	  width: 100%;
+	  height: 900px;
+	  box-shadow: 5px 5px 5px #888;
+  }
+
+
+
+
+ </style>
+ 
+ </head>
+  <body>
+   <div id="map"></div><!--Objeto div que inserta el mapa-->
+
+  
+<!---->
+
+ <script>
+
+var datos = cuadri;  
+ 
+ var map = L.map("map").setView([19.448389, -99.3002789], 11);
+	
+	//Esta linea añade un mapa base o las capas de openstreet map en este caso
+    L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+        maxZoom: 18
+      }).addTo(map);
+
+
+      var featuresLayer = new L.GeoJSON(datos, {
+        style: function(feature) {
+            return { color: feature.properties.color };
+        },
+        onEachFeature: function(feature, marker) {
+            var popupContent = '<h4 style="color:' + feature.properties.color + '">' +
+                               'ID: ' + feature.properties.id + '</h4>' +
+                               'NUMPOINTS: ' + feature.properties.NUMPOINTS;
+            marker.bindPopup(popupContent).addTo(map);  //recuerda siempre agregar el add.To(map) por esa razon no lo cargaba en el mapa 
+        }
+    });
+
+
+
+
+
+
+
+      L.Control.geocoder().addTo(map);  
+
+      
+  
+      
+      var geocoder = L.Control.geocoder({
+  defaultMarkGeocode: false
+})
+  .on('markgeocode', function(e) {
+    var bbox = e.geocode.bbox;
+    var poly = L.polygon([
+      bbox.getSouthEast(),
+      bbox.getNorthEast(),
+      bbox.getNorthWest(),
+      bbox.getSouthWest()
+    ]).addTo(map);
+    map.fitBounds(poly.getBounds());
+  })
+  .addTo(map);     
+      
+
+var buffersLayer = L.geoJSON(buffers).addTo(map);
+
+  
+
+
+
+
+ </script>
+ </body> 
+ </html>
